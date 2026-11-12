@@ -1,14 +1,13 @@
 package com.criancasdoamanha;
 
+import com.criancasdoamanha.util.ConexaoBanco;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ConexaoTeste {
-
-    private static final String URL = "jdbc:sqlite:criancas_do_amanha.db";
 
     public static void main(String[] args) {
         String sql = """
@@ -21,18 +20,15 @@ public class ConexaoTeste {
                 ORDER BY mes
                 """;
 
-        try (Connection conexao = DriverManager.getConnection(URL);
-             Statement stmt = conexao.createStatement()) {
+        try (Connection conexao = ConexaoBanco.getConexao();
+             Statement stmt = conexao.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-            stmt.execute("PRAGMA foreign_keys = ON");
-
-            try (ResultSet rs = stmt.executeQuery(sql)) {
-                while (rs.next()) {
-                    System.out.println(rs.getString("mes")
-                            + " | pago: " + rs.getDouble("total_pago")
-                            + " | pendente: " + rs.getDouble("total_pendente")
-                            + " | total: " + rs.getDouble("total_geral"));
-                }
+            while (rs.next()) {
+                System.out.println(rs.getString("mes")
+                        + " | pago: " + rs.getDouble("total_pago")
+                        + " | pendente: " + rs.getDouble("total_pendente")
+                        + " | total: " + rs.getDouble("total_geral"));
             }
         } catch (SQLException e) {
             System.out.println("Erro: " + e.getMessage());
